@@ -1,18 +1,18 @@
-import requests
-from bs4 import BeautifulSoup
+import threading
 from urllib.parse import urljoin
 
+import requests
+from bs4 import BeautifulSoup
 
-# TODO - conventions for tiud?
-# TODO - handle exceptions better
-# TODO - should the reported_links set be locked?
+BS_PARSER = 'html.parser'
+MAX_THREADS = 5
+
 
 class WebCrawler(object):
     """ Retrieves links in a given website, alerts when a broken link is found, and reports it's depth """
 
     def __init__(self, root_url: str):
         self.root_url = root_url
-        self.bs_parser = 'html.parser'
         self.parsed_links = set()
 
     def get_links_from_url(self, url: str) -> set:
@@ -22,7 +22,7 @@ class WebCrawler(object):
         :return: all links found in the given URL
         """
         response = requests.get(url)
-        bs_obj = BeautifulSoup(response.content, self.bs_parser, from_encoding=response.encoding)
+        bs_obj = BeautifulSoup(response.content, BS_PARSER, from_encoding=response.encoding)
         return {urljoin(url, link['href']) for link in bs_obj.find_all(href=True)}
 
     def get_links_report(self, url: str, depth: int = 0) -> None:
@@ -36,4 +36,5 @@ class WebCrawler(object):
         for link in links_in_url:
             print("depth: {0} ,link: {1}".format(depth, link))
             if link not in self.parsed_links:
-                self.get_links_report(link, depth + 1)
+                new_report_thread = threading.Thread(target=self.get_links_report, args=(link, depth + 1))
+                new_report_thread.start()
