@@ -33,9 +33,9 @@ class WebCrawler(object):
         soup = BeautifulSoup(response.content, self.bs_parser, from_encoding=response.encoding)
         return {urljoin(url, link['href']) for link in soup.find_all(href=True)}
 
-    def check_if_link_is_broken(self) -> bool:
-        """ Check if s link is broken """
-        pass
+    def is_link_broken(self, response_obj: requests.Response) -> bool: # TODO - might need removal, or refractor
+        """ Check if s link is broken from it's response """
+        return True if response_obj.status_code == 404 else False
 
     def main(self):
         """ Get a report of all links under a given website and their depth. check if they are broken """
@@ -43,6 +43,9 @@ class WebCrawler(object):
 
 
 if __name__ == '__main__':
+    # main_url = 'http://www.guardicore.com/'
     main_url = 'https://www.neave.com'
     wc = WebCrawler(main_url)
-    print(wc.get_links_from_url(main_url))
+    resp = wc.get_response_from_url(main_url)
+    print(type(resp))
+    print(wc.is_link_broken(resp))
