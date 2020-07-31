@@ -16,21 +16,13 @@ class WebCrawler(object):
         self.http_header = {'User-Agent': 'Chrome/35.0.1916.47'}
         self.parsed_links = set()
 
-    def get_response_from_url(self, url: str) -> requests.Response: # TODO - might need a removal
-        """
-        Get an HTTP response from a given url
-        :param url: URL to get a response from
-        :return: the response from the given URL
-        """
-        return requests.get(url, headers=self.http_header)
-
     def get_links_from_url(self, url: str) -> set:
         """
         Get a list of URLs under a given URL
         :param url: URL to get links from
         :return: all links found in the given URL
         """
-        response = self.get_response_from_url(url)
+        response = requests.get(url, headers=self.http_header)
         bs_obj = BeautifulSoup(response.content, self.bs_parser, from_encoding=response.encoding)
         return {urljoin(url, link['href']) for link in bs_obj.find_all(href=True)}
 
@@ -50,7 +42,3 @@ class WebCrawler(object):
             print("depth: {0} ,link: {1}".format(depth, link))
             if link not in self.parsed_links:
                 self.get_links_report(link, depth + 1)
-            else:
-                print('skipping: {}'.format(link))
-
-            # TODO - need to handle duplicate links, especially those with #
