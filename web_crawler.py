@@ -5,19 +5,20 @@ from urllib.parse import urljoin
 
 # TODO - conventions for tiud?
 # TODO - handle exceptions better
+# TODO - should the reported_links set be locked?
 
 class WebCrawler(object):
     """ Retrieves links in a given website, alerts when a broken link is found, and reports it's depth """
 
-    def __init__(self, website_url: str):
-        self.website_url = website_url
+    def __init__(self, root_url: str):
+        self.root_url = root_url
         self.bs_parser = 'html.parser'
         self.http_header = {'User-Agent': 'Chrome/35.0.1916.47'}
-        pass
+        self.parsed_links = set()
 
     def get_response_from_url(self, url: str) -> requests.Response: # TODO - might need a removal
         """
-        Get an HTTP response form a given url
+        Get an HTTP response from a given url
         :param url: URL to get a response from
         :return: the response from the given URL
         """
@@ -30,13 +31,26 @@ class WebCrawler(object):
         :return: all links found in the given URL
         """
         response = self.get_response_from_url(url)
-        soup = BeautifulSoup(response.content, self.bs_parser, from_encoding=response.encoding)
-        return {urljoin(url, link['href']) for link in soup.find_all(href=True)}
+        bs_obj = BeautifulSoup(response.content, self.bs_parser, from_encoding=response.encoding)
+        return {urljoin(url, link['href']) for link in bs_obj.find_all(href=True)}
 
     def is_link_broken(self, response_obj: requests.Response) -> bool: # TODO - might need removal, or refractor
         """ Check if s link is broken from it's response """
         return True if response_obj.status_code == 404 else False
 
-    def main(self):
-        """ Get a report of all links under a given website and their depth. check if they are broken """
-        pass
+    def get_links_report(self, url: str, depth: int = 0) -> None:
+        """
+        Get a report of all links under a given website and their depth. check if they are broken
+        :param url: URL of the website to get a report of
+        :param depth: number of clicks from the root website to the current link
+        """
+        self.parsed_links.add(url)
+        links_in_url = {link for link in self.get_links_from_url(url) if link.startswith(self.root_url)}
+        for link in links_in_url:
+            print("depth: {0} ,link: {1}".format(depth, link))
+            if link not in self.parsed_links:
+                self.get_links_report(link, depth + 1)
+            else:
+                print('skipping: {}'.format(link))
+
+            # TODO - need to handle duplicate links, especially those with #
