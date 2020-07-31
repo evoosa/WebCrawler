@@ -10,5 +10,6 @@ Usage:
 Requirements:
     - The packages listed in requirements.txt
     - python 3.8.5
+    - Windows OS
 
 Enjoy!
