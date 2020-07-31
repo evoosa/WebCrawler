@@ -5,7 +5,7 @@ WebCrawler
     - It will output the broken links to a file located at: C:\Temp\broken_links_<current_time>.txt
 
 Usage:
-    python3.8 main.py
+    python main.py
 
 Requirements:
     - The packages listed in requirements.txt
