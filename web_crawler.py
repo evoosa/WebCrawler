@@ -40,12 +40,3 @@ class WebCrawler(object):
     def main(self):
         """ Get a report of all links under a given website and their depth. check if they are broken """
         pass
-
-
-if __name__ == '__main__':
-    # main_url = 'http://www.guardicore.com/'
-    main_url = 'https://www.neave.com'
-    wc = WebCrawler(main_url)
-    resp = wc.get_response_from_url(main_url)
-    print(type(resp))
-    print(wc.is_link_broken(resp))
