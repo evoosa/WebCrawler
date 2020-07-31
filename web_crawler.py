@@ -13,7 +13,6 @@ class WebCrawler(object):
     def __init__(self, root_url: str):
         self.root_url = root_url
         self.bs_parser = 'html.parser'
-        self.http_header = {'User-Agent': 'Chrome/35.0.1916.47'}
         self.parsed_links = set()
 
     def get_links_from_url(self, url: str) -> set:
@@ -22,13 +21,9 @@ class WebCrawler(object):
         :param url: URL to get links from
         :return: all links found in the given URL
         """
-        response = requests.get(url, headers=self.http_header)
+        response = requests.get(url)
         bs_obj = BeautifulSoup(response.content, self.bs_parser, from_encoding=response.encoding)
         return {urljoin(url, link['href']) for link in bs_obj.find_all(href=True)}
-
-    def is_link_broken(self, response_obj: requests.Response) -> bool: # TODO - might need removal, or refractor
-        """ Check if s link is broken from it's response """
-        return True if response_obj.status_code == 404 else False
 
     def get_links_report(self, url: str, depth: int = 0) -> None:
         """
