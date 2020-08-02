@@ -6,7 +6,6 @@ import requests
 from bs4 import BeautifulSoup
 
 BS_PARSER = 'html.parser'
-MAX_THREADS = 5
 NOW = time.strftime("%Y%m%d-%H%M%S")
 
 
